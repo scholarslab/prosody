@@ -1,1 +1,10 @@
-wp/wp-config.php
+# Files to ignore
+.env
+
+# Folders to ignore
+custom-bulk-actions
+initial_sql
+prosody_db_data
+prosody_plugin
+prosody_theme
+uploads

@@ -1,6 +1,32 @@
-prosody
-=======
+Prosody production Docker
 
-This repository contains old files for the prosody website that are no longer maintained.
+# Production
+## Initial (first-time only) setup
+- 
 
-For more up-to-date (but similarly un-maintained) files, see the [WordPress theme](https://github.com/scholarslab/prosody_theme), and [WordPress plugin](https://github.com/scholarslab/prosody_plugin).
+
+# Development with Docker
+- Create a folder for the project
+- Clone the docker-compose.yml file
+  - `git clone `
+- Clone the plugins and theme repos into your working directory
+  - `git clone https://github.com/scholarslab/prosody_plugin.git`
+  - `git clone https://github.com/scholarslab/prosody_theme.git`
+  - `git clone https://github.com/Seravo/wp-custom-bulk-actions.git`
+- Create a '.env' file with the following variables
+  ```
+  MYSQL_ROOT_PASSWORD=
+  MYSQL_DATABASE=
+  MYSQL_USER=
+  MYSQL_PASSWORD=
+  WORDPRESS_DB_HOST=
+  WORDPRESS_DB_USER=
+  WORDPRESS_DB_PASSWORD=
+  WORDPRESS_TABLE_PREFIX=
+  PORTS=
+  ```
+
+- Start the docker with docker-compose
+  - `docker-compose up`
+
+- The website is viewable at http://localhost
