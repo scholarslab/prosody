@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 
 services:
    db:
@@ -18,12 +18,14 @@ services:
        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
    wordpress:
+     build:
+       context: .
      depends_on:
        - db
-     image: wordpress:latest
+     image: prosody_wp:0.1
      container_name: prosody_wordpress
      volumes:
-       - ./custom-bulk-actions:/var/www/html/wp-content/plugins/custom-bulk-actions/
+       - ./wp-custom-bulk-actions:/var/www/html/wp-content/plugins/custom-bulk-actions/
        - ./prosody_plugin:/var/www/html/wp-content/plugins/prosody_plugin/
        - ./prosody_theme:/var/www/html/wp-content/themes/prosody/
        - ./uploads:/var/www/html/wp-content/uploads/

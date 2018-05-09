@@ -1,8 +1,9 @@
 # Files to ignore
 .env
+scripts/copy-prod-uploads.sh
 
 # Folders to ignore
-custom-bulk-actions
+wp-custom-bulk-actions
 initial_sql
 prosody_db_data
 prosody_plugin
