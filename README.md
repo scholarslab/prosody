@@ -13,13 +13,14 @@ development environments for the Prosody project.
 
       ProxyPass / http://localhost:8228/
       ProxyPassReverse / http://localhost/
+      ProxyPreserveHost On
     </VirtualHost> 
     ```
   - Note the port number used on the ProxyPass line. this must be the same as used in the left side of the colon on the PORTS line in the .env file (see below)
 - Clone the repository into the appropriate place, ex `/var/www/prosody.lib.virginia.edu`
   - `git clone https://github.com/scholarslab/prosody.git prosody.lib.virginia.edu`
-- Change into the 'prosody' folder.
-  - `cd prosody`
+- Change into the 'Prosody' folder.
+  - `cd prosody.lib.virginia.edu`
 - Clone the plugins and theme repos into your working directory
   - `git clone https://github.com/scholarslab/prosody_plugin.git`
   - `git clone https://github.com/scholarslab/prosody_theme.git`
