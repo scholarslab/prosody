@@ -40,10 +40,22 @@ development environments for the Prosody project.
 - Copy the uploads directory from the old prosody site
   - `scp -r old.prosody.site:/path/to/wp/wp-content/uploads uploads`
 - Make a dump of the old prosody database. Make a folder called 'initial_sql', and put the file in there.
+  - Make sure to name it "prosody_production.sql".
 - Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
+- Uncomment the 'initial_sql' line in the docker-compose.yml file.
+  - `./initial_sql/prosody_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
+- Make sure the permissions on all files and folders are correct.
+  - files should be 644
+    - `find . -type f -exec chmod 664 '{}' \;`
+  - folders should be 755 (with the s bit set)
+    - `find . -type d -exec chmod ug=rwx,g+s,o=rx '{}' \;`
 - Start the container with docker-compose, with -d flag to start docker-compose as a background process
   - `docker-compose up -d`
-- Note: you will have to activate the 'Custom Bulk Actions' plugin by logging in to the web admin interface.
+  - To test the set up and check for any errors, run the above command without the "-d" flag. 
+  - After everything looks good, you can stop the docker process with 
+    - `Ctrl-c` 
+  - then stop all docker containers with 
+    - `docker-compose down --volumes`
 - Comment out the line with 'initial_sql' in the docker-compose.yml file.
   - `#./initial_sql/prosody_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
 
@@ -79,6 +91,8 @@ It may be necessary, or desireable to create a dump of the production (or develo
 
 This script will create a new .sql file in the 'initial_sql' folder with the current date-stamp as the file name. This folder is automatically created when docker-compose is run. This file can then be used in the docker-compose.yml file as the initial sql file to seed the database (replace the existing name of the file on the line that has 'initial_sql', with the version you just created).
 
+
+
 # Development with Docker
 Developing the Prosody plugin or theme is easy with Docker. Make a clone of
 this repository and the plugins and theme repositories (as shown below), then
@@ -105,8 +119,17 @@ push them to the GitHub repository.
   WORDPRESS_TABLE_PREFIX=good_prefix_
   PORTS=80:80
   ```
+- Copy the uploads directory from the old prosody site
+  - `scp -r old.prosody.site:/path/to/wp/wp-content/uploads uploads`
+- Make a dump of the old prosody database. Make a folder called 'initial_sql', and put the file in there.
+  - Make sure to name it "prosody_production.sql".
+- Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
+- Uncomment the 'initial_sql' line in the docker-compose.yml file.
+  - `./initial_sql/prosody_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
 - Start the container with docker-compose
   - `docker-compose up`
+- After Docker Compose is running the container and there are no errors, then comment out the line with 'initial_sql' in the docker-compose.yml file.
+  - `#./initial_sql/prosody_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
 - Change your '/etc/hosts' file to direct http://prosody.lib.virginia.edu to your local machine
   - For Mac and Linux
     - Add this line to the '/etc/hosts' file, you will need to be root or use sudo
@@ -139,5 +162,25 @@ push them to the GitHub repository.
         - `127.0.0.1 prosody.lib.virginia.edu`
       - Click File > Save to save your changes.
 - With the ports set at '80:80' and the change to the /etc/hosts file, the website is viewable at http://prosody.lib.virginia.edu
-  - Note: you will have to activate the 'Custom Bulk Actions' plugin by logging in to the web admin interface.
 - When done testing, remove the line from '/etc/hosts' file.
+
+## Docker clean up
+It may be necessary to remove/update the images created by running docker-compose. Docker Compose will create the following images:
+- prosody_wp
+- wordpress (latest version)
+- mysql (version 5.7)
+
+- To fully remove these images, first shut down the containers and remove the local volume:
+  - `docker-compose down --volumes`
+- Get the list of images with:
+  - `docker images`
+    ```
+    [Results will look like this]
+      REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+      prosody_wp          0.1                 5e42a88dda96        1 hour ago          522MB
+      wordpress           latest              652d1ff3db63        1 hour ago          407MB
+      mysql               5.7                 0d16d0a97dd1        1 hour ago          372MB
+
+    ```
+- Then remove the images (where `<ID>` is the unique IMAGE ID for the prosody_wp, wordpress and mysql images, these should be the lastes three created):
+  - `docker rmi <ID> <ID> <ID>`
