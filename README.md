@@ -52,12 +52,13 @@ development environments for the Prosody project.
 - Start the container with docker-compose, with -d flag to start docker-compose as a background process
   - `docker-compose up -d`
   - To test the set up and check for any errors, run the above command without the "-d" flag. 
-  - After everything looks good, you can stop the docker process with 
-    - `Ctrl-c` 
-  - then stop all docker containers with 
-    - `docker-compose down --volumes`
-- Comment out the line with 'initial_sql' in the docker-compose.yml file.
+    - After everything looks good, you can stop the docker process with 
+      - `Ctrl-c` 
+    - then stop all docker containers with the following command before restarting
+      - `docker-compose down --volumes`
+- Comment out the line with 'initial_sql' in the docker-compose.yml file so it is not loaded on subsequent restarts (potentially overwriting changes made to the website).
   - `#./initial_sql/prosody_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
+
 
 ## Upgrade Prosody on production
 It will be necessary to restart Docker when upgrading the WordPress version, or the MySQL version.
@@ -66,13 +67,15 @@ It will be necessary to restart Docker when upgrading the WordPress version, or 
   - `docker-compose down`
 - Make sure to comment out the line with 'initial_sql', if not done already.
   - `#./initial_sql/prosody_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
+
 ### Upgrade WordPress
 - The docker-compose file already has specified to use the latest version of WordPress, so just restart.
   - `docker-compose up -d`
+
 ### Upgrade MySQL
 - Specify the version of MySQL to use in the docker-compose.yml file.
   - `image: mysql:5.7`
-- The restart Docker Compose
+- Then restart Docker Compose
   - `docker-compose up -d`
 
 ### Update theme or plugin
@@ -82,14 +85,24 @@ repo. No need to restart Docker Compose.
 - While in the folder for the theme or plugin (ex. /var/www/prosody.lib.virginia.edu/prosody_plugin):
   - `git pull`
 
+
 ## MySQL dump
-It may be necessary, or desireable to create a dump of the production (or development) database. This can be used to seed your development set up, or to revert the production instance to a known good version. A BASH script in the 'scripts' folder makes this super easy. Just run this from the command line, in the main project directory (the same level as the 'scripts' folder).
+It may be necessary, or desireable to create a dump of the production (or
+development) database. This can be used to seed your development set up, or to
+revert the production instance to a known good version. A BASH script in the
+'scripts' folder makes this super easy. Just run this from the command line, in
+the main project directory (the same level as the 'scripts' folder).
 - Double check that the script is executable
 - This script will only work if the container is actively running.
 - Then run
   - `./scripts/dump-docker-db.sh`
 
-This script will create a new .sql file in the 'initial_sql' folder with the current date-stamp as the file name. This folder is automatically created when docker-compose is run. This file can then be used in the docker-compose.yml file as the initial sql file to seed the database (replace the existing name of the file on the line that has 'initial_sql', with the version you just created).
+This script will create a new .sql file in the 'initial_sql' folder with the
+current date-stamp as the file name. This folder is automatically created when
+docker-compose is run. This file can then be used in the docker-compose.yml
+file as the initial sql file to seed the database (replace the existing name of
+the file on the line that has 'initial_sql', with the version you just
+created).
 
 
 
@@ -121,8 +134,9 @@ push them to the GitHub repository.
   ```
 - Copy the uploads directory from the old prosody site
   - `scp -r old.prosody.site:/path/to/wp/wp-content/uploads uploads`
-- Make a dump of the old prosody database. Make a folder called 'initial_sql', and put the file in there.
-  - Make sure to name it "prosody_production.sql".
+- Make a dump of the old or current prosody database (see above step MySQL dump). 
+- Make a folder called 'initial_sql', and put the file in there.
+  - Make sure to name it "prosody_production.sql", or change the name in the docker-compose.yml file (noted below).
 - Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
 - Uncomment the 'initial_sql' line in the docker-compose.yml file.
   - `./initial_sql/prosody_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
@@ -164,8 +178,9 @@ push them to the GitHub repository.
 - With the ports set at '80:80' and the change to the /etc/hosts file, the website is viewable at http://prosody.lib.virginia.edu
 - When done testing, remove the line from '/etc/hosts' file.
 
+
 ## Docker clean up
-It may be necessary to remove/update the images created by running docker-compose. Docker Compose will create the following images:
+It may be necessary to remove the images created by running docker-compose. Docker Compose will create the following images:
 - prosody_wp
 - wordpress (latest version)
 - mysql (version 5.7)
@@ -182,5 +197,5 @@ It may be necessary to remove/update the images created by running docker-compos
       mysql               5.7                 0d16d0a97dd1        1 hour ago          372MB
 
     ```
-- Then remove the images (where `<ID>` is the unique IMAGE ID for the prosody_wp, wordpress and mysql images, these should be the lastes three created):
+- Then remove the images (where `<ID>` is the unique IMAGE ID for the prosody_wp, wordpress and mysql images, these should be the most recent three created):
   - `docker rmi <ID> <ID> <ID>`
