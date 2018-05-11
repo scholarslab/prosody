@@ -28,15 +28,17 @@ development environments for the Prosody project.
 - Create a '.env' file with the following variables
   ```
   MYSQL_ROOT_PASSWORD=some_great_password
-  MYSQL_DATABASE=database_name
   MYSQL_USER=wordpress_user
   MYSQL_PASSWORD=wordpress_password
+  MYSQL_DATABASE=wordpress
   WORDPRESS_DB_HOST=db:3306
-  WORDPRESS_DB_USER=some_username
-  WORDPRESS_DB_PASSWORD=some_password
-  WORDPRESS_TABLE_PREFIX=good_prefix_
-  PORTS=8228:80
+  WORDPRESS_TABLE_PREFIX=prosody_wp_
+  PORTS=8888:80
   ```
+  - NOTE the following about each line:
+    - `MYSQL_DATABASE`, `WORDPRESS_DB_HOST`, `WORDPRESS_TABLE_PREFIX` must be as written. 
+    - `PORTS` depends on production or development. Production requires a different port than 80 for the first value (left side of colon).
+    - The first three lines can be whatever.
 - Copy the uploads directory from the old prosody site
   - `scp -r old.prosody.site:/path/to/wp/wp-content/uploads uploads`
 - Make a dump of the old prosody database. Make a folder called 'initial_sql', and put the file in there.
@@ -123,18 +125,20 @@ push them to the GitHub repository.
 - Create a '.env' file with the following variables
   ```
   MYSQL_ROOT_PASSWORD=some_great_password
-  MYSQL_DATABASE=database_name
   MYSQL_USER=wordpress_user
   MYSQL_PASSWORD=wordpress_password
+  MYSQL_DATABASE=wordpress
   WORDPRESS_DB_HOST=db:3306
-  WORDPRESS_DB_USER=some_username
-  WORDPRESS_DB_PASSWORD=some_password
-  WORDPRESS_TABLE_PREFIX=good_prefix_
+  WORDPRESS_TABLE_PREFIX=prosody_wp_
   PORTS=80:80
   ```
+  - NOTE the following about each line:
+    - `MYSQL_DATABASE`, `WORDPRESS_DB_HOST`, `WORDPRESS_TABLE_PREFIX` must be as written. 
+    - `PORTS` depends on production or development. Development should have 80 for the first value (left side of colon).
+    - The first three lines can be whatever.
 - Copy the uploads directory from the old prosody site
-  - `scp -r old.prosody.site:/path/to/wp/wp-content/uploads uploads`
-- Make a dump of the old or current prosody database (see above step MySQL dump). 
+  - `scp -r prosody.lib.virginia.edu:/path/to/wp/wp-content/uploads uploads`
+- Make a dump of the current prosody database (see above step MySQL dump). 
 - Make a folder called 'initial_sql', and put the file in there.
   - Make sure to name it "prosody_production.sql", or change the name in the docker-compose.yml file (noted below).
 - Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
