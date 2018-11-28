@@ -14,7 +14,7 @@ development environments for the Prosody project.
       ProxyPass / http://localhost:8228/
       ProxyPassReverse / http://localhost/
       ProxyPreserveHost On
-    </VirtualHost> 
+    </VirtualHost>
     ```
   - Note the port number used on the ProxyPass line. this must be the same as used in the left side of the colon on the PORTS line in the .env file (see below)
 - Clone the repository into the appropriate place, ex `/var/www/prosody.lib.virginia.edu`
@@ -36,7 +36,7 @@ development environments for the Prosody project.
   PORTS=8888:80
   ```
   - NOTE the following about each line:
-    - `MYSQL_DATABASE`, `WORDPRESS_DB_HOST`, `WORDPRESS_TABLE_PREFIX` must be as written. 
+    - `MYSQL_DATABASE`, `WORDPRESS_DB_HOST`, `WORDPRESS_TABLE_PREFIX` must be as written.
     - `PORTS` depends on production or development. Production requires a different port than 80 for the first value (left side of colon).
     - The first three lines can be whatever.
 - Copy the uploads directory from the old prosody site
@@ -53,9 +53,9 @@ development environments for the Prosody project.
     - `find . -type d -exec chmod ug=rwx,g+s,o=rx '{}' \;`
 - Start the container with docker-compose, with -d flag to start docker-compose as a background process
   - `docker-compose up -d`
-  - To test the set up and check for any errors, run the above command without the "-d" flag. 
-    - After everything looks good, you can stop the docker process with 
-      - `Ctrl-c` 
+  - To test the set up and check for any errors, run the above command without the "-d" flag.
+    - After everything looks good, you can stop the docker process with
+      - `Ctrl-c`
     - then stop all docker containers with the following command before restarting
       - `docker-compose down --volumes`
 - Comment out the line with 'initial_sql' in the docker-compose.yml file so it is not loaded on subsequent restarts (potentially overwriting changes made to the website).
@@ -113,7 +113,14 @@ Developing the Prosody plugin or theme is easy with Docker. Make a clone of
 this repository and the plugins and theme repositories (as shown below), then
 just edit the files in the theme or plugin directory. When done making changes,
 push them to the GitHub repository.
+## Requirements
+- GitHub account
+- Github desktop (or the command line)
+- Docker
+- Docker account
+- A text editor (eg. Atom)
 
+## Getting Started
 - Clone this repository
   - `git clone https://github.com/scholarslab/prosody.git prosody`
 - Change into the 'prosody' folder.
@@ -133,12 +140,12 @@ push them to the GitHub repository.
   PORTS=80:80
   ```
   - NOTE the following about each line:
-    - `MYSQL_DATABASE`, `WORDPRESS_DB_HOST`, `WORDPRESS_TABLE_PREFIX` must be as written. 
+    - `MYSQL_DATABASE`, `WORDPRESS_DB_HOST`, `WORDPRESS_TABLE_PREFIX` must be as written.
     - `PORTS` depends on production or development. Development should have 80 for the first value (left side of colon).
     - The first three lines can be whatever.
 - Copy the uploads directory from the old prosody site
   - `scp -r prosody.lib.virginia.edu:/path/to/wp/wp-content/uploads uploads`
-- Make a dump of the current prosody database (see above step MySQL dump). 
+- Make a dump of the current prosody database (see above step MySQL dump).
 - Make a folder called 'initial_sql', and put the file in there.
   - Make sure to name it "prosody_production.sql", or change the name in the docker-compose.yml file (noted below).
 - Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
@@ -158,7 +165,7 @@ push them to the GitHub repository.
       - Type Notepad in the search field.
       - In the search results, right-click Notepad and select Run as administrator.
       - From Notepad, open the following file: c:\Windows\System32\Drivers\etc\hosts
-      - Make the necessary changes to the file. Add the line 
+      - Make the necessary changes to the file. Add the line
         - `127.0.0.1 prosody.lib.virginia.edu`
       - Click File > Save to save your changes.
     - For Windows 7 and Vista
@@ -168,7 +175,7 @@ push them to the GitHub repository.
       - When Notepad opens, click File > Open.
       - In the File name field, type C:\Windows\System32\Drivers\etc\hosts.
       - Click Open.
-      - Make the necessary changes to the file. Add the line 
+      - Make the necessary changes to the file. Add the line
         - `127.0.0.1 prosody.lib.virginia.edu`
       - Click File > Save to save your changes.
     - For Windows NT, Windows 2000, and Windows XP
@@ -176,7 +183,7 @@ push them to the GitHub repository.
       - Click File > Open.
       - In the File name field, type C:\Windows\System32\Drivers\etc\hosts.
       - Click Open.
-      - Make the necessary changes to the file. Add the line 
+      - Make the necessary changes to the file. Add the line
         - `127.0.0.1 prosody.lib.virginia.edu`
       - Click File > Save to save your changes.
 - With the ports set at '80:80' and the change to the /etc/hosts file, the website is viewable at http://prosody.lib.virginia.edu
