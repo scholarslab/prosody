@@ -1,9 +1,9 @@
 version: '2'
 
 services:
-   db:
+   prosody_db:
      image: mysql:5.7
-     container_name: prosody_mysql
+     container_name: prosody_db
      volumes:
        - ./prosody_db_data:/var/lib/mysql
 
@@ -23,7 +23,7 @@ services:
      build:
        context: .
      depends_on:
-       - db
+       - prosody_db
      image: prosody_wp:0.1
      volumes:
        - ./wp-custom-bulk-actions:/var/www/html/wp-content/plugins/custom-bulk-actions/
