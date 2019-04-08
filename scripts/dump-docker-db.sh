@@ -2,7 +2,7 @@
 
 # Run this script to make a dump of the MySQL database.
 #
-# $> ./dump-database.sh
+# $> ./dump-database.sh container_name
 #
 # This is helpful if the container needs to be restarted, and if for some
 # reason you want to reload the database on restart. Run this script first to
@@ -20,7 +20,7 @@ if [ -f .env ]; then
 
   # Get the current Year Month Day and seconds since Epoch to use as file name
   DATE=`date '+%Y-%m-%d-%s'`
-  docker exec prosody_mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" $MYSQL_DATABASE' > initial_sql/${DATE}.sql
+  docker exec $1 sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" $MYSQL_DATABASE' > initial_sql/${DATE}.sql
 
 else
 
