@@ -71,7 +71,9 @@ It will be necessary to restart Docker when upgrading the WordPress version, or 
   - `#./initial_sql/prosody_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
 
 ### Upgrade WordPress
-- The docker-compose file already has specified to use the latest version of WordPress, so just restart.
+- Pull in the latest image 
+  - `sudo docker-compose build --pull`
+- then restart.
   - `docker-compose up -d`
 
 ### Upgrade MySQL
