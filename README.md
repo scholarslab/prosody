@@ -81,6 +81,7 @@ It will be necessary to restart Docker when upgrading the WordPress version, or 
   - `image: mysql:5.7`
 - Then restart Docker Compose
   - `docker-compose up -d`
+- Log in to the WordPress admin page and run any updates if prompted.
 
 ### Update theme or plugin
 To get the updates to the theme and plugin, just pull them down from the GitHub
@@ -88,6 +89,7 @@ repo. No need to restart Docker Compose.
 
 - While in the folder for the theme or plugin (ex. /var/www/prosody.lib.virginia.edu/prosody_plugin):
   - `git pull`
+- Log in to the WordPress admin page and run any updates if prompted.
 
 
 ## MySQL dump
@@ -115,15 +117,21 @@ Developing the Prosody plugin or theme is easy with Docker. Make a clone of
 this repository and the plugins and theme repositories (as shown below), then
 just edit the files in the theme or plugin directory. When done making changes,
 push them to the GitHub repository.
-## Requirements
-- GitHub account
-- Github desktop (or the command line)
-- Docker
-- Docker account
-- A text editor (eg. Atom)
 
-## Getting Started
-- Clone this repository
+## Requirements
+You'll need to create accounts and install these software programs before getting started.
+
+- GitHub account
+- Docker Desktop (requires creating an account)
+  - [Install Docker Desktop](https://www.docker.com/products/docker-desktop)
+- A text editor (ex. VS Code)
+  - [VS Code](https://code.visualstudio.com/)
+
+## Setting Up the Environment
+Create the local development environment. You'll be creating a local copy of the website. Docker acts as the web and MySQL server. VS Code is the software used to edit the files. GitHub is where the code is stored.
+
+Open VS Code. Open the Terminal in VS Code by going to the Terminal menu and New Terminal (or Command-J in Mac, and Ctrl+` in Windows)
+- Clone this repository. In the terminal type this out (or copy and paste) then press return or enter key.
   - `git clone https://github.com/scholarslab/prosody.git prosody`
 - Change into the 'prosody' folder.
   - `cd prosody`
@@ -131,7 +139,7 @@ push them to the GitHub repository.
   - `git clone https://github.com/scholarslab/prosody_plugin.git`
   - `git clone https://github.com/scholarslab/prosody_theme.git`
   - `git clone https://github.com/Seravo/wp-custom-bulk-actions.git`
-- Create a '.env' file with the following variables
+- Create a new `.env` file with the following variables
   ```
   MYSQL_ROOT_PASSWORD=some_great_password
   MYSQL_USER=wordpress_user
@@ -145,22 +153,27 @@ push them to the GitHub repository.
     - `MYSQL_DATABASE`, `WORDPRESS_DB_HOST`, `WORDPRESS_TABLE_PREFIX` must be as written.
     - `PORTS` depends on production or development. Development should have 80 for the first value (left side of colon).
     - The first three lines can be whatever.
-- Copy the uploads directory from the old prosody site
-  - `scp -r prosody.lib.virginia.edu:/path/to/wp/wp-content/uploads uploads`
-- Make a dump of the current prosody database (see above step MySQL dump).
-- Make a folder called 'initial_sql', and put the file in there.
-  - Make sure to name it "prosody_production.sql", or change the name in the docker-compose.yml file (noted below).
+- Copy the uploads directory from the old prosody site. This assumes you have access to the server where the live website lives. If you do not, ask one of the Scholars' Lab developers for help.
+  - `scp -r prosody.lib.virginia.edu:/path/to/wp/wp-content/uploads/* uploads/`
+- Make a dump of the current prosody database (see above step [MySQL dump](#mysql-dump)).
+  - Make sure to rename the sql file you get from the live server "prosody_production.sql", or change the name in the docker-compose.yml file (noted below).
 - Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
-- Uncomment the 'initial_sql' line in the docker-compose.yml file.
-  - `./initial_sql/prosody_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
+- Uncomment the line in the docker-compose.yml file that looks like this:
+  - `./database_from_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
+  - Or if you did not change the name of the SQL file you got from the live server, change 'database_from_production.sql' in the line above.
+- Create the Docker network
+- `docker network create thenetwork `
 - Start the container with docker-compose
-  - `docker-compose up`
-- After Docker Compose is running the container and there are no errors, then comment out the line with 'initial_sql' in the docker-compose.yml file.
-  - `#./initial_sql/prosody_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
+  - `docker compose up -f docker-compose-dev.yml`
+- After Docker Compose is running the container and there are no errors, then comment the line with 'database_from_production.sql' in the docker-compose.yml file.
+  - `#./database_from_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
 - Change your '/etc/hosts' file to direct http://prosody.lib.virginia.edu to your local machine
   - For Mac and Linux
     - Add this line to the '/etc/hosts' file, you will need to be root or use sudo
       - `127.0.0.1 prosody.lib.virginia.edu`
+      - If you have the shortcut set up, you can type this into the terminal in VS Code
+        - `sudo code /etc/hosts` You will need to type in the password you use for the user account for your computer. For security reasons, you don't see the characters (or a *) when you are typing your password.
+      - Add the line above to the bottom of the file. Save the file. You can leave the file open as a reminder to comment the line when you are done testing.
   - For Windows machines (from https://gist.github.com/zenorocha/18b10a14b2deb214dc4ce43a2d2e2992)
     - For Windows 10 and 8
       - Press the Windows key.
@@ -188,11 +201,14 @@ push them to the GitHub repository.
       - Make the necessary changes to the file. Add the line
         - `127.0.0.1 prosody.lib.virginia.edu`
       - Click File > Save to save your changes.
-- With the ports set at '80:80' and the change to the /etc/hosts file, the website is viewable at http://prosody.lib.virginia.edu
-- When done testing, remove the line from '/etc/hosts' file.
+  - Add the line above to the bottom of the file. Save the file. You can leave the file open as a reminder to comment the line when you are done testing.
+- With the Docker running, and the change to the /etc/hosts file, the website is viewable at http://prosody.lib.virginia.edu
+  - It might be best to use two different browsers, one for accessing your new local testing site, and one for the live site. The testing site needs to use the non-encrypted 'http' protocol, while the live site uses the encrypted 'https' protocol. Because of browser caching, using the same browser for testing and the live site could cause issues.
+  - If you get an error when trying to load the website in your browser, double check that you are using 'http' and not 'https' in the URL.
+- REMEMBER: When done testing, comment the line from '/etc/hosts' file so that you can see the live site. With this line uncommented, you can only see the testing site on your computer.
 
 
-## Docker clean up
+# Docker clean up
 It may be necessary to remove the images created by running docker-compose. Docker Compose will create the following images:
 - prosody_wp
 - wordpress (latest version)

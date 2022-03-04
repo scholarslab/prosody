@@ -1,0 +1,57 @@
+version: '2'
+
+services:
+   traefik:
+     image: "traefik:2.5.6"
+     command:
+       - "--api.insecure=true"
+       - "--providers.docker=true"
+       - "--providers.docker.exposedbydefault=false"
+       - "--entrypoints.web.address=:80"
+     ports:
+       - "80:80"
+       - "8080:8080"
+     volumes:
+       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+   prosody_db:
+     image: "mysql:5.7"
+     container_name: "prosody_db"
+     depends_on:
+       - "traefik"
+     volumes:
+       - "./prosody_db_data:/var/lib/mysql"
+       # Only use this line for the initial start up (the very first time docker-compose is run
+       #- ./database_from_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql
+     environment:
+       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+       MYSQL_DATABASE: ${MYSQL_DATABASE}
+       MYSQL_USER: ${MYSQL_USER}
+       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+     labels:
+       - "traefik.enable=false"
+
+   wordpress:
+     build:
+       context: .
+     depends_on:
+       - "traefik"
+       - "prosody_db"
+     volumes:
+       - "./wp-custom-bulk-actions:/var/www/html/wp-content/plugins/custom-bulk-actions/"
+       - "./prosody_plugin:/var/www/html/wp-content/plugins/prosody_plugin/"
+       - "./prosody_theme:/var/www/html/wp-content/themes/prosody/"
+       - "./uploads:/var/www/html/wp-content/uploads/"
+     environment:
+       WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+       WORDPRESS_DB_USER: ${MYSQL_USER}
+       WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+     labels:
+       - "traefik.enable=true"
+       - "traefik.http.routers.wordpress.rule=Host(`localhost`, `prosody.lib.virginia.edu`, `127.0.0.1`)"
+       - "traefik.http.routers.wordpress.entrypoints=web"
+
+networks:
+  default:
+    name: "thenetwork"
