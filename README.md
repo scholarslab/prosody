@@ -207,6 +207,23 @@ Open VS Code. Open the Terminal in VS Code by going to the Terminal menu and New
   - If you get an error when trying to load the website in your browser, double check that you are using 'http' and not 'https' in the URL.
 - REMEMBER: When done testing, comment the line from '/etc/hosts' file so that you can see the live site. With this line uncommented, you can only see the testing site on your computer.
 
+## Saving Changes to GitHub
+After making changes to the theme or plugin, you will push those changes to the GitHub repository.
+
+VS Code has Git compatibility baked into it. On the left-most sidebar (the Activity Bar), look for the Git icon. Select that to see the files that have changes. Click the + to add them to 'staging'. After adding all files, type a message in the message box. Then click the check mark above to commit the changes. Then click the three vertical dots menu and select 'Push' to push the changes to the GitHub repo.
+
+
+## Workflow
+
+1. Before you start changing files, make sure you have the latest version from GitHub. 'Pull' from GitHub
+2. Make changes to your files.
+3. Test in the local development environment. (change /etc/hosts file)
+4. Save changes. 
+5. Stage files. 
+6. Commit changes. 
+7. Push changes to GitHub.
+8. Stop local development (change /etc/hosts file)
+9. Check live site
 
 # Docker clean up
 It may be necessary to remove the images created by running docker-compose. Docker Compose will create the following images:
