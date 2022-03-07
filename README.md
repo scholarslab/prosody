@@ -154,40 +154,69 @@ Open VS Code. Open the Terminal in VS Code by going to the Terminal menu and New
     - `MYSQL_DATABASE`, `WORDPRESS_DB_HOST`, `WORDPRESS_TABLE_PREFIX` must be as written.
     - `PORTS` depends on production or development. Development should have 80 for the first value (left side of colon).
     - The first three lines can be whatever.
+- Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
 
 ### Get the live data
-The following steps require access to the live server. If you don't have access to the server, you'll need to get the `uploads` folder and a copy of the database from a Scholars' Lab developer.
+The following steps require access to the live server. If you don't have access to the server, you'll need to get the `uploads` folder and a copy of the database from a Scholars' Lab developer. 
+
+#### Uploads folder
+The `uploads` folder goes in the same directory (on the same level) as the prosody_theme and prosody_plugin folders.
 
 - Copy the uploads directory from the old prosody site. This assumes you have access to the server where the live website lives. If you do not, ask one of the Scholars' Lab developers for help.
   - `scp -r prosody.lib.virginia.edu:/path/to/wp/wp-content/uploads/* uploads/`
+
+#### Database
+The database file (database_from_production.sql) goes in the same folder as the docker-compose-dev.yml file (on the same level).
+
 - Make a dump of the current prosody database (see above step [MySQL dump](#mysql-dump)).
-  - Make sure to rename the sql file you get from the live server "prosody_production.sql", or change the name in the docker-compose.yml file (noted below).
+  - Make sure to rename the sql file you get from the live server to "database_from_production.sql".
+- You only need to do this step the very first time you start Docker. Uncomment the line in the docker-compose-dev.yml file that looks like this:
+  - `./database_from_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
+  - That section of the file should look like this:
+    ```
+    prosody_db:
+      image: "mysql:5.7"
+      container_name: "prosody_db"
+      depends_on:
+        - "traefik"
+      volumes:
+        - "./prosody_db_data:/var/lib/mysql"
+        # Only use this line for the initial start up (the very first time docker-compose is run
+        - ./database_from_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql
+      environment:
+        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+        MYSQL_USER: ${MYSQL_USER}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      labels:
+        - "traefik.enable=false"
+    ```
 
 ### Start up Docker
-- Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
-- Uncomment the line in the docker-compose.yml file that looks like this:
-  - `./database_from_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
-  - Or if you did not change the name of the SQL file you got from the live server, change 'database_from_production.sql' in the line above.
 - Create the Docker network
-- `docker network create thenetwork `
+  - `docker network create thenetwork `
+
 - Start the container with docker-compose
-  - `docker compose up -f docker-compose-dev.yml`
-- After Docker Compose is running the container and there are no errors, then comment the line with 'database_from_production.sql' in the docker-compose.yml file.
+  - `docker compose -f docker-compose-dev.yml up`
+
+- After Docker Compose is running the container and there are no errors, then comment the line with 'database_from_production.sql' in the docker-compose-dev.yml file.
   - `#./database_from_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
 
 ### Trick your computer
-This next step will trick your computer into thinking that the webiste URL http://prosody.lib.virginia.edu lives on your computer instead of the real web server. You will need to make this change only while you are testing on your computer. 
+This next step will trick your computer into thinking that the website URL http://prosody.lib.virginia.edu lives on your computer instead of the real web server. You will need to make this change only while you are testing on your computer. 
 
 After you are done testing on your computer, you will need to undo this change so that your computer can see the real website.
 
 - Change your '/etc/hosts' file to direct http://prosody.lib.virginia.edu to your local machine
+
 <details>
   <summary>For Mac and Linux</summary>
 
   - Add this line to the '/etc/hosts' file, you will need to be root or use sudo
     - `127.0.0.1 prosody.lib.virginia.edu`
-    - If you have the shortcut set up, you can type this into the terminal in VS Code
-      - `sudo code /etc/hosts` You will need to type in the password you use for the user account for your computer. For security reasons, you don't see the characters (or a *) when you are typing your password.
+    - In the terminal in VS Code type in the following command (this requires you to have your computer set up to open VS Code with the command `code`. Steps for [Mac](https://code.visualstudio.com/docs/setup/mac#_launching-from-the-command-line).)
+      - `sudo code /etc/hosts` 
+        - You will need to type in the password you use for the user account for your computer. For security reasons, you don't see the characters (or a *) when you are typing your password.
     - Add the line above to the bottom of the file. Save the file. You can leave the file open as a reminder to comment the line when you are done testing.
 </details>
 
@@ -223,11 +252,33 @@ After you are done testing on your computer, you will need to undo this change s
     - Click File > Save to save your changes.
 </details>
 
-  - Add the line above to the bottom of the file. Save the file. You can leave the file open as a reminder to comment the line when you are done testing.
-- With the Docker running, and the change to the /etc/hosts file, the website is viewable at http://prosody.lib.virginia.edu
+  - Save the file. You can leave the file open as a reminder to comment the line when you are done testing.
+    - Your file will look something like this:
+
+      ```
+        ##
+        # Host Database
+        #
+        # localhost is used to configure the loopback interface
+        # when the system is booting.  Do not change this entry.
+        ##
+        127.0.0.1	localhost
+
+        # Added by Docker Desktop
+        # To allow the same kube context to work on the host and the container:
+        127.0.0.1 kubernetes.docker.internal
+        # End of section
+        #
+
+        127.0.0.1 prosody.lib.virginia.edu
+      ```
+
+### View the testing site
+With the Docker running, and the change to the /etc/hosts file, the website is viewable at http://prosody.lib.virginia.edu
   - It might be best to use two different browsers, one for accessing your new local testing site, and one for the live site. The testing site needs to use the non-encrypted 'http' protocol, while the live site uses the encrypted 'https' protocol. Because of browser caching, using the same browser for testing and the live site could cause issues.
   - If you get an error when trying to load the website in your browser, double check that you are using 'http' and not 'https' in the URL.
 - REMEMBER: When done testing, comment the line from '/etc/hosts' file so that you can see the live site. With this line uncommented, you can only see the testing site on your computer.
+
 
 ## Saving Changes to GitHub
 After making changes to the theme or plugin, you will push those changes to the GitHub repository.
@@ -246,6 +297,7 @@ VS Code has Git compatibility baked into it. On the left-most sidebar (the Activ
 7. Push changes to GitHub.
 8. Stop local development (change /etc/hosts file)
 9. Check live site
+
 
 # Docker clean up
 It may be necessary to remove the images created by running docker-compose. Docker Compose will create the following images:
