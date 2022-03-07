@@ -130,6 +130,7 @@ You'll need to create accounts and install these software programs before gettin
 ## Setting Up the Environment
 Create the local development environment. You'll be creating a local copy of the website. Docker acts as the web and MySQL server. VS Code is the software used to edit the files. GitHub is where the code is stored.
 
+### Copy the Code
 Open VS Code. Open the Terminal in VS Code by going to the Terminal menu and New Terminal (or Command-J in Mac, and Ctrl+` in Windows)
 - Clone this repository. In the terminal type this out (or copy and paste) then press return or enter key.
   - `git clone https://github.com/scholarslab/prosody.git prosody`
@@ -153,10 +154,16 @@ Open VS Code. Open the Terminal in VS Code by going to the Terminal menu and New
     - `MYSQL_DATABASE`, `WORDPRESS_DB_HOST`, `WORDPRESS_TABLE_PREFIX` must be as written.
     - `PORTS` depends on production or development. Development should have 80 for the first value (left side of colon).
     - The first three lines can be whatever.
+
+### Get the live data
+The following steps require access to the live server. If you don't have access to the server, you'll need to get the `uploads` folder and a copy of the database from a Scholars' Lab developer.
+
 - Copy the uploads directory from the old prosody site. This assumes you have access to the server where the live website lives. If you do not, ask one of the Scholars' Lab developers for help.
   - `scp -r prosody.lib.virginia.edu:/path/to/wp/wp-content/uploads/* uploads/`
 - Make a dump of the current prosody database (see above step [MySQL dump](#mysql-dump)).
   - Make sure to rename the sql file you get from the live server "prosody_production.sql", or change the name in the docker-compose.yml file (noted below).
+
+### Start up Docker
 - Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
 - Uncomment the line in the docker-compose.yml file that looks like this:
   - `./database_from_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
@@ -167,40 +174,55 @@ Open VS Code. Open the Terminal in VS Code by going to the Terminal menu and New
   - `docker compose up -f docker-compose-dev.yml`
 - After Docker Compose is running the container and there are no errors, then comment the line with 'database_from_production.sql' in the docker-compose.yml file.
   - `#./database_from_production.sql:/docker-entrypoint-initdb.d/prosody_production.sql`
+
+### Trick your computer
+This next step will trick your computer into thinking that the webiste URL http://prosody.lib.virginia.edu lives on your computer instead of the real web server. You will need to make this change only while you are testing on your computer. 
+
+After you are done testing on your computer, you will need to undo this change so that your computer can see the real website.
+
 - Change your '/etc/hosts' file to direct http://prosody.lib.virginia.edu to your local machine
-  - For Mac and Linux
-    - Add this line to the '/etc/hosts' file, you will need to be root or use sudo
+<details>
+  <summary>For Mac and Linux</summary>
+
+  - Add this line to the '/etc/hosts' file, you will need to be root or use sudo
+    - `127.0.0.1 prosody.lib.virginia.edu`
+    - If you have the shortcut set up, you can type this into the terminal in VS Code
+      - `sudo code /etc/hosts` You will need to type in the password you use for the user account for your computer. For security reasons, you don't see the characters (or a *) when you are typing your password.
+    - Add the line above to the bottom of the file. Save the file. You can leave the file open as a reminder to comment the line when you are done testing.
+</details>
+
+<details>
+<summary>For Windows Computers</summary>
+
+  - (from https://gist.github.com/zenorocha/18b10a14b2deb214dc4ce43a2d2e2992)
+  - For Windows 10 and 8
+    - Press the Windows key.
+    - Type Notepad in the search field.
+    - In the search results, right-click Notepad and select Run as administrator.
+    - From Notepad, open the following file: c:\Windows\System32\Drivers\etc\hosts
+    - Make the necessary changes to the file. Add the line
       - `127.0.0.1 prosody.lib.virginia.edu`
-      - If you have the shortcut set up, you can type this into the terminal in VS Code
-        - `sudo code /etc/hosts` You will need to type in the password you use for the user account for your computer. For security reasons, you don't see the characters (or a *) when you are typing your password.
-      - Add the line above to the bottom of the file. Save the file. You can leave the file open as a reminder to comment the line when you are done testing.
-  - For Windows machines (from https://gist.github.com/zenorocha/18b10a14b2deb214dc4ce43a2d2e2992)
-    - For Windows 10 and 8
-      - Press the Windows key.
-      - Type Notepad in the search field.
-      - In the search results, right-click Notepad and select Run as administrator.
-      - From Notepad, open the following file: c:\Windows\System32\Drivers\etc\hosts
-      - Make the necessary changes to the file. Add the line
-        - `127.0.0.1 prosody.lib.virginia.edu`
-      - Click File > Save to save your changes.
-    - For Windows 7 and Vista
-      - Click Start > All Programs > Accessories.
-      - Right-click Notepad and select Run as administrator.
-      - Click Continue on the Windows needs your permission UAC window.
-      - When Notepad opens, click File > Open.
-      - In the File name field, type C:\Windows\System32\Drivers\etc\hosts.
-      - Click Open.
-      - Make the necessary changes to the file. Add the line
-        - `127.0.0.1 prosody.lib.virginia.edu`
-      - Click File > Save to save your changes.
-    - For Windows NT, Windows 2000, and Windows XP
-      - Click Start > All Programs > Accessories > Notepad.
-      - Click File > Open.
-      - In the File name field, type C:\Windows\System32\Drivers\etc\hosts.
-      - Click Open.
-      - Make the necessary changes to the file. Add the line
-        - `127.0.0.1 prosody.lib.virginia.edu`
-      - Click File > Save to save your changes.
+    - Click File > Save to save your changes.
+  - For Windows 7 and Vista
+    - Click Start > All Programs > Accessories.
+    - Right-click Notepad and select Run as administrator.
+    - Click Continue on the Windows needs your permission UAC window.
+    - When Notepad opens, click File > Open.
+    - In the File name field, type C:\Windows\System32\Drivers\etc\hosts.
+    - Click Open.
+    - Make the necessary changes to the file. Add the line
+      - `127.0.0.1 prosody.lib.virginia.edu`
+    - Click File > Save to save your changes.
+  - For Windows NT, Windows 2000, and Windows XP
+    - Click Start > All Programs > Accessories > Notepad.
+    - Click File > Open.
+    - In the File name field, type C:\Windows\System32\Drivers\etc\hosts.
+    - Click Open.
+    - Make the necessary changes to the file. Add the line
+      - `127.0.0.1 prosody.lib.virginia.edu`
+    - Click File > Save to save your changes.
+</details>
+
   - Add the line above to the bottom of the file. Save the file. You can leave the file open as a reminder to comment the line when you are done testing.
 - With the Docker running, and the change to the /etc/hosts file, the website is viewable at http://prosody.lib.virginia.edu
   - It might be best to use two different browsers, one for accessing your new local testing site, and one for the live site. The testing site needs to use the non-encrypted 'http' protocol, while the live site uses the encrypted 'https' protocol. Because of browser caching, using the same browser for testing and the live site could cause issues.
