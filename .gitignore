@@ -1,6 +1,8 @@
 # Files to ignore
+**/.DS_Store
 .env
 scripts/copy-prod-uploads.sh
+database_from_production.sql
 
 # Folders to ignore
 wp-custom-bulk-actions

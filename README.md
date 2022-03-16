@@ -31,7 +31,7 @@ development environments for the Prosody project.
   MYSQL_USER=wordpress_user
   MYSQL_PASSWORD=wordpress_password
   MYSQL_DATABASE=wordpress
-  WORDPRESS_DB_HOST=db:3306
+  WORDPRESS_DB_HOST=prosody_db:3306
   WORDPRESS_TABLE_PREFIX=prosody_wp_
   PORTS=8888:80
   ```
@@ -146,7 +146,7 @@ Open VS Code. Open the Terminal in VS Code by going to the Terminal menu and New
   MYSQL_USER=wordpress_user
   MYSQL_PASSWORD=wordpress_password
   MYSQL_DATABASE=wordpress
-  WORDPRESS_DB_HOST=db:3306
+  WORDPRESS_DB_HOST=prosody_db:3306
   WORDPRESS_TABLE_PREFIX=prosody_wp_
   PORTS=80:80
   ```
@@ -154,7 +154,8 @@ Open VS Code. Open the Terminal in VS Code by going to the Terminal menu and New
     - `MYSQL_DATABASE`, `WORDPRESS_DB_HOST`, `WORDPRESS_TABLE_PREFIX` must be as written.
     - `PORTS` depends on production or development. Development should have 80 for the first value (left side of colon).
     - The first three lines can be whatever.
-- Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
+
+Note the 'Dockerfile'. This is needed so that the xsl module is enabled in the WordPress image. This creates a separate docker image that is used instead of the one supplied by WordPress
 
 ### Get the live data
 The following steps require access to the live server. If you don't have access to the server, you'll need to get the `uploads` folder and a copy of the database from a Scholars' Lab developer. 
@@ -175,7 +176,7 @@ The database file (database_from_production.sql) goes in the same folder as the 
   - That section of the file should look like this:
     ```
     prosody_db:
-      image: "mysql:5.7"
+      image: "mariadb:10.2"
       container_name: "prosody_db"
       depends_on:
         - "traefik"
